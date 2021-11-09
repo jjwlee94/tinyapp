@@ -15,8 +15,6 @@ function generateRandomString() {
   return result;
 };
 
-const shortURL = generateRandomString(); // Move out to global scope
-
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -50,16 +48,21 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  const shortURL = generateRandomString(); 
   urlDatabase[shortURL] = req.body.longURL; 
   res.redirect(`/urls/${shortURL}`);
 });
 
+// Delete URL
 app.post("/urls/:shortURL/delete", (req, res) => {
+  const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
   res.redirect("/urls");
-})
+});
 
+// Edit URL
 app.post("/urls/:id", (req, res) => {
+  const shortURL = req.params.id;
   urlDatabase[shortURL] = req.body.newLongURL
   res.redirect("/urls");
-})
+});
