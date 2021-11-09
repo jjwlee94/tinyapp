@@ -8,7 +8,7 @@ app.set("view engine", "ejs");
 
 function generateRandomString() {
   let result = '';
-  let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+  let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890'; // Update to include lowercase letters
   for (let i = 0; i < 6; i++) {
     result += characters.charAt(Math.floor(Math.random() * characters.length));
   }
@@ -56,5 +56,10 @@ app.post("/urls", (req, res) => {
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[shortURL];
+  res.redirect("/urls");
+})
+
+app.post("/urls/:id", (req, res) => {
+  urlDatabase[shortURL] = req.body.newLongURL
   res.redirect("/urls");
 })
