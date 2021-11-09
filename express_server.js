@@ -2,11 +2,10 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const { response } = require("express");
-app.use(bodyParser.urlencoded({extended: true}));
-app.set("view engine", "ejs");
 
-function generateRandomString() {
+const generateRandomString = function() {
   let result = '';
   let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890'; // Update to include lowercase letters
   for (let i = 0; i < 6; i++) {
@@ -20,16 +19,22 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+app.set("view engine", "ejs");
+
+// Middleware //
+
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
+
+// GET requests //
+
+// Check cookies
+app.get('/', (req, res) => {
+  console.log('Cookies: ', req.cookies)
 });
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
 });
 
 app.get("/urls", (req, res) => {
@@ -46,6 +51,8 @@ app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
+
+// POST requests //
 
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString(); 
@@ -65,4 +72,17 @@ app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
   urlDatabase[shortURL] = req.body.newLongURL
   res.redirect("/urls");
+});
+
+// Login
+app.post("/login", (req, res) => {
+  const username = req.body.username;
+  res.cookie("username", username);
+  res.redirect("/urls");
+});
+
+// Listen //
+
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
 });
