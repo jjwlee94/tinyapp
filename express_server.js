@@ -1,5 +1,3 @@
-/** @format */
-
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -27,8 +25,8 @@ const userEmailExists = function (email) {
 };
 
 const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userID" },
+  "9sm5xK": { longURL: "http://www.google.com", userID: "userID" }
 };
 
 const users = {
@@ -79,14 +77,14 @@ app.get("/urls", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     user: users[req.cookies["user_id"]],
   };
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
@@ -113,8 +111,12 @@ app.post("/urls", (req, res) => {
       .send("Error: Please login to create a new URL.");
   }
   const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL] = {
+    longURL: req.body.longURL,
+    userID: req.cookies["user_id"]
+  }
   res.redirect(`/urls/${shortURL}`);
+  // console.log(urlDatabase); --> Test which URLs belong to which users
 });
 
 // Delete URL
