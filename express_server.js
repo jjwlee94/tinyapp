@@ -14,10 +14,10 @@ const generateRandomString = function() {
   return result;
 };
 
-const userEmailExists = function(email, users) {
-  for (let userID in users) {
-    if (users[userID].email === email) {
-      return true;
+const userEmailExists = function(email) {
+  for (const user in users) {
+    if (users[user].email === email) {
+      return users[user].id;
     }
   }
   return false;
@@ -122,13 +122,22 @@ app.post("/urls/:id", (req, res) => {
 
 // Login
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie("username", username);
+  const userEmail = req.body.email;
+  const userPassword = req.body.password;
+  const userID = userEmailExists(userEmail);
+  if (!userEmailExists(userEmail)) {
+    return res.status(403).send("Error: Email address does not exist. Please create an account.");
+  }
+  if (users[userID].password !== userPassword) {
+    return res.status(403).send("Error: Incorrect password. Please login again.");
+  };
+  res.cookie("user_id", userID);
   res.redirect("/urls");
 });
 
 // Logout
 app.post("/logout", (req, res) => {
+  const userID = req.body.userID;
   res.clearCookie("user_id");
   res.redirect("/urls");
 });
@@ -141,7 +150,7 @@ app.post("/register", (req, res) => {
   if (!userEmail || !userPassword) {
     return res.status(400).send("Error: No email address and/or password submitted.");
   };
-  if (userEmailExists(userEmail, users)) {
+  if (userEmailExists(userEmail)) {
     return res.status(400).send("Error: Email address already exists.")
   };
   users[userID] = {
