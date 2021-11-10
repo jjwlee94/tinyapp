@@ -14,6 +14,15 @@ const generateRandomString = function() {
   return result;
 };
 
+const userEmailExists = function(email, users) {
+  for (let userID in users) {
+    if (users[userID].email === email) {
+      return true;
+    }
+  }
+  return false;
+};
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -122,6 +131,12 @@ app.post("/register", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
   const userID = generateRandomString();
+  if (!userEmail || !userPassword) {
+    return res.status(400).send("Error: No email address and/or password submitted.");
+  };
+  if (userEmailExists(userEmail, users)) {
+    return res.status(400).send("Error: Email address already exists.")
+  };
   users[userID] = {
     id: userID,
     email: userEmail,
