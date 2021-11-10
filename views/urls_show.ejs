@@ -20,12 +20,10 @@
   <div class="card-body bg-light text-center">
     <h4 class="card-title text-muted bg-light">Edit</h4>
     <p class="card-text">
-      <form class="form-inline" action="/urls/<%= shortURL %>" method="POST">
-        <div class="form-group mb-2">
+      <form class="align-items-center" action="/urls/<%= shortURL %>" method="POST">
           <label for="newlongURL">New URL:</label>
-          <input class="form-control" type="text" name="newLongURL" placeholder="http://" style="width: 300px; margin: 1em">
+          <input type="text" name="newLongURL" placeholder="http://" style="width: 300px; margin: 0.5em">
           <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
       </form>
     </p>
   </div>
