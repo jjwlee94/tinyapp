@@ -7,54 +7,14 @@ const morgan = require("morgan");
 const app = express();
 const PORT = 8080; // default port 8080
 
-const { getUserByEmail } = require("./helpers");
-
-const generateRandomString = function () {
-  let result = "";
-  let characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
-  for (let i = 0; i < 6; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return result;
-};
-
-const userEmailExists = function (email, database) {
-  for (let user in database) {
-    if (database[user].email === email) {
-      return true;
-    }
-  }
-  return false;
-};
-
-const urlsForUser = function (id) {
-  const userURLs = {};
-  for (let shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === id) {
-      userURLs[shortURL] = urlDatabase[shortURL];
-    }
-  }
-  return userURLs;
-};
-
-const urlDatabase = {
-  // "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID" },
-  // "9sm5xK": { longURL: "http://www.google.com", userID: "userRandomID" },
-};
-
-const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: bcrypt.hashSync("purple-monkey-dinosaur", 10),
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: bcrypt.hashSync("dishwasher-funk", 10),
-  },
-};
+const {
+  generateRandomString,
+  userEmailExists,
+  getUserByEmail,
+  urlsForUser,
+  urlDatabase,
+  users,
+} = require("./helpers");
 
 app.set("view engine", "ejs");
 
