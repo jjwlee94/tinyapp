@@ -3,7 +3,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
-const { response } = require("express");
+const morgan = require("morgan");
 const bcrypt = require("bcryptjs");
 
 const generateRandomString = function () {
@@ -65,6 +65,7 @@ app.use(
     maxAge: 24 * 60 * 60 * 1000,
   })
 );
+app.use(morgan("dev"));
 
 // GET requests //
 
