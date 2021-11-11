@@ -40,6 +40,16 @@ app.get("/", (req, res) => {
   }
 });
 
+// Renders main page with a list of shortened URLs created by user
+app.get("/urls", (req, res) => {
+  const templateVars = {
+    urls: urlsForUser(req.session.user_id),
+    user: users[req.session.user_id],
+  };
+  res.render("urls_index", templateVars);
+});
+
+// Renders page to create new shortened URL
 app.get("/urls/new", (req, res) => {
   if (!req.session.user_id) {
     return res.redirect("/login");
@@ -51,14 +61,7 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-app.get("/urls", (req, res) => {
-  const templateVars = {
-    urls: urlsForUser(req.session.user_id),
-    user: users[req.session.user_id],
-  };
-  res.render("urls_index", templateVars);
-});
-
+// Renders page with shortened URL and its associated long URL
 app.get("/urls/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     const templateVars = {
@@ -73,6 +76,7 @@ app.get("/urls/:shortURL", (req, res) => {
   }
 });
 
+// Redirects to long URL with shortened URL
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     const longURL = urlDatabase[req.params.shortURL].longURL;
@@ -82,13 +86,7 @@ app.get("/u/:shortURL", (req, res) => {
   }
 });
 
-app.get("/register", (req, res) => {
-  const templateVars = {
-    user: users[req.session.user_id],
-  };
-  res.render("urls_register", templateVars);
-});
-
+// Renders login page
 app.get("/login", (req, res) => {
   const templateVars = {
     user: users[req.session.user_id],
@@ -96,8 +94,17 @@ app.get("/login", (req, res) => {
   res.render("urls_login", templateVars);
 });
 
+// Renders registration page
+app.get("/register", (req, res) => {
+  const templateVars = {
+    user: users[req.session.user_id],
+  };
+  res.render("urls_register", templateVars);
+});
+
 // POST requests //
 
+// Generate, save, and associate a short URL with the user
 app.post("/urls", (req, res) => {
   if (!req.session.user_id) {
     return res.status(401).send("Error: Please login to create a new URL.");
@@ -111,22 +118,7 @@ app.post("/urls", (req, res) => {
   }
 });
 
-// Delete URL
-app.post("/urls/:shortURL/delete", (req, res) => {
-  const userID = req.session.user_id;
-  const userURLs = urlsForUser(userID);
-  if (Object.keys(userURLs).includes(req.params.shortURL)) {
-    const shortURL = req.params.shortURL;
-    delete urlDatabase[shortURL];
-    res.redirect("/urls");
-  } else {
-    res
-      .status(401)
-      .send("Error: This shortened URL is not associated with your account.");
-  }
-});
-
-// Edit URL
+// Edit the user's own URL
 app.post("/urls/:id", (req, res) => {
   const userID = req.session.user_id;
   const userURLs = urlsForUser(userID);
@@ -141,7 +133,22 @@ app.post("/urls/:id", (req, res) => {
   }
 });
 
-// Login
+// Delete the user's own URL
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const userID = req.session.user_id;
+  const userURLs = urlsForUser(userID);
+  if (Object.keys(userURLs).includes(req.params.shortURL)) {
+    const shortURL = req.params.shortURL;
+    delete urlDatabase[shortURL];
+    res.redirect("/urls");
+  } else {
+    res
+      .status(401)
+      .send("Error: This shortened URL is not associated with your account.");
+  }
+});
+
+// Set a cookie and redirect to main page
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
@@ -160,14 +167,7 @@ app.post("/login", (req, res) => {
   }
 });
 
-// Logout
-app.post("/logout", (req, res) => {
-  const userID = req.body.userID;
-  req.session = null;
-  res.redirect("/urls");
-});
-
-// Register
+// Create a new user, encrypt password, set a cookie, and redirect to main page
 app.post("/register", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
@@ -191,6 +191,13 @@ app.post("/register", (req, res) => {
     req.session.user_id = userID;
     res.redirect("/urls");
   }
+});
+
+// Delete cookies and redirect to main page
+app.post("/logout", (req, res) => {
+  const userID = req.body.userID;
+  req.session = null;
+  res.redirect("/urls");
 });
 
 // Listen //
