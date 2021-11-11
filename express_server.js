@@ -16,13 +16,21 @@ const generateRandomString = function () {
   return result;
 };
 
-const userEmailExists = function (email) {
-  for (let user in users) {
-    if (users[user].email === email) {
-      return users[user].id;
+const userEmailExists = function (email, database) {
+  for (let user in database) {
+    if (database[user].email === email) {
+      return true;
     }
   }
   return false;
+};
+
+const getUserByEmail = function (email, database) {
+  for (let user in database) {
+    if (database[user].email === email) {
+      return database[user].id;
+    }
+  }
 };
 
 const urlsForUser = function (id) {
@@ -166,8 +174,8 @@ app.post("/urls/:id", (req, res) => {
 app.post("/login", (req, res) => {
   const userEmail = req.body.email;
   const userPassword = req.body.password;
-  const userID = userEmailExists(userEmail);
-  if (!userEmailExists(userEmail)) {
+  const userID = getUserByEmail(userEmail, users);
+  if (!userEmailExists(userEmail, users)) {
     return res
       .status(403)
       .send("Error: Email address does not exist. Please create an account.");
@@ -197,7 +205,7 @@ app.post("/register", (req, res) => {
     return res
       .status(400)
       .send("Error: No email address and/or password submitted.");
-  } else if (userEmailExists(userEmail)) {
+  } else if (userEmailExists(userEmail, users)) {
     return res
       .status(400)
       .send(
