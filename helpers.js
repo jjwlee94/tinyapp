@@ -1,6 +1,7 @@
 const urlDatabase = {};
 const users = {};
 
+// Generates a random six character string
 const generateRandomString = function () {
   let result = "";
   let characters =
@@ -11,6 +12,7 @@ const generateRandomString = function () {
   return result;
 };
 
+// Checks whether email exists in the database
 const userEmailExists = function (email, database) {
   for (let user in database) {
     if (database[user].email === email) {
@@ -20,6 +22,7 @@ const userEmailExists = function (email, database) {
   return false;
 };
 
+// Returns userID with email in database
 const getUserByEmail = function (email, database) {
   for (let user in database) {
     if (database[user].email === email) {
@@ -28,6 +31,7 @@ const getUserByEmail = function (email, database) {
   }
 };
 
+// Returns associated URLs with specific userID
 const urlsForUser = function (id) {
   const userURLs = {};
   for (let shortURL in urlDatabase) {
