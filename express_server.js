@@ -1,10 +1,13 @@
 const express = require("express");
-const app = express();
-const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
 const morgan = require("morgan");
+
+const app = express();
+const PORT = 8080; // default port 8080
+
+const { getUserByEmail } = require("./helpers");
 
 const generateRandomString = function () {
   let result = "";
@@ -23,14 +26,6 @@ const userEmailExists = function (email, database) {
     }
   }
   return false;
-};
-
-const getUserByEmail = function (email, database) {
-  for (let user in database) {
-    if (database[user].email === email) {
-      return database[user].id;
-    }
-  }
 };
 
 const urlsForUser = function (id) {
