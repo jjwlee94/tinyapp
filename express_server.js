@@ -60,13 +60,17 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    urlUserID: urlDatabase[req.params.shortURL].userID,
-    user: users[req.session.user_id],
-  };
-  res.render("urls_show", templateVars);
+  if (urlDatabase[req.params.shortURL]) {
+    const templateVars = {
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL].longURL,
+      urlUserID: urlDatabase[req.params.shortURL].userID,
+      user: users[req.session.user_id],
+    };
+    res.render("urls_show", templateVars);
+  } else {
+    res.status(401).send("Error: This shortened URL does not exist.");
+  }
 });
 
 app.get("/u/:shortURL", (req, res) => {
