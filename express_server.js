@@ -3,8 +3,8 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
-const morgan = require("morgan");
 const bcrypt = require("bcryptjs");
+const morgan = require("morgan");
 
 const generateRandomString = function () {
   let result = "";
@@ -36,8 +36,8 @@ const urlsForUser = function (id) {
 };
 
 const urlDatabase = {
-  b2xVn2: { longURL: "http://www.lighthouselabs.ca", userID: "userID" },
-  "9sm5xK": { longURL: "http://www.google.com", userID: "userID" },
+  // "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID" },
+  // "9sm5xK": { longURL: "http://www.google.com", userID: "userRandomID" },
 };
 
 const users = {
@@ -134,17 +134,32 @@ app.post("/urls", (req, res) => {
 
 // Delete URL
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const shortURL = req.params.shortURL;
-  delete urlDatabase[shortURL];
-  res.redirect("/urls");
+  const userID = req.session.user_id;
+  const userURLs = urlsForUser(userID);
+  if (Object.keys(userURLs).includes(req.params.shortURL)) {
+    const shortURL = req.params.shortURL;
+    delete urlDatabase[shortURL];
+    res.redirect("/urls");
+  } else {
+    res
+      .status(401)
+      .send("Error: This shortened URL is not associated with your account.");
+  }
 });
 
 // Edit URL
 app.post("/urls/:id", (req, res) => {
   const userID = req.session.user_id;
-  const shortURL = req.params.id;
-  urlDatabase[shortURL] = req.body.newLongURL;
-  res.redirect("/urls");
+  const userURLs = urlsForUser(userID);
+  if (Object.keys(userURLs).includes(req.params.id)) {
+    const shortURL = req.params.id;
+    urlDatabase[shortURL].longURL = req.body.newLongURL;
+    res.redirect("/urls");
+  } else {
+    res
+      .status(401)
+      .send("Error: This shortened URL is not associated with your account.");
+  }
 });
 
 // Login
@@ -183,7 +198,11 @@ app.post("/register", (req, res) => {
       .status(400)
       .send("Error: No email address and/or password submitted.");
   } else if (userEmailExists(userEmail)) {
-    return res.status(400).send("Error: Email address already exists.");
+    return res
+      .status(400)
+      .send(
+        "Error: Email address already exists. Please login to your account."
+      );
   } else {
     users[userID] = {
       id: userID,
@@ -196,7 +215,6 @@ app.post("/register", (req, res) => {
 });
 
 // Listen //
-
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
