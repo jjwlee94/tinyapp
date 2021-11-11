@@ -16,12 +16,22 @@ const generateRandomString = function () {
 };
 
 const userEmailExists = function (email) {
-  for (const user in users) {
+  for (let user in users) {
     if (users[user].email === email) {
       return users[user].id;
     }
   }
   return false;
+};
+
+const urlsForUser = function(id) {
+  const userURLs = {};
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      userURLs[shortURL] = urlDatabase[shortURL];
+    }
+  }
+  return userURLs;
 };
 
 const urlDatabase = {
@@ -68,7 +78,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const templateVars = {
-    urls: urlDatabase,
+    urls: urlsForUser(req.cookies["user_id"]),
     user: users[req.cookies["user_id"]],
   };
   res.render("urls_index", templateVars);
@@ -78,6 +88,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
+    urlUserID: urlDatabase[req.params.shortURL].userID,
     user: users[req.cookies["user_id"]],
   };
   res.render("urls_show", templateVars);
